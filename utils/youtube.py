@@ -1,19 +1,18 @@
 import os
 import json
-
 from googleapiclient.discovery import build
 
-# API_KEY скопирован из гугла и вставлен в переменные окружения
-api_key: str = os.getenv('API_KEY')
 
-# создать специальный объект для работы с API
-youtube = build('youtube', 'v3', developerKey=api_key)
+class Youtube:
 
+    # API_KEY скопирован из гугла и вставлен в переменные окружения
+    api_key: str = os.getenv('API_KEY')
 
-# class Youtube:
-#
-#     def __init__(self, api_key: str):
-#         self.api_key = api_key
+    # создать специальный объект для работы с API
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
 
 
 class Channel:
@@ -21,13 +20,12 @@ class Channel:
     def __init__(self, channel_id: str):
         self.channel_id = channel_id
 
-
     def print_info(self):
-        channel = youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
+        channel = Youtube.youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
         print(json.dumps(channel, indent=2, ensure_ascii=False))
 
     def create_data(self):
-        channel = youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
+        channel = Youtube.youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
         data = json.dumps(channel, indent=2, ensure_ascii=False)
         return data
 
