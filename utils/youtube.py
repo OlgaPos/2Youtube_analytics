@@ -17,17 +17,42 @@ class Youtube:
 
 class Channel:
 
-    def __init__(self, channel_id: str):
-        self.channel_id = channel_id
+    def __init__(self, __channel_id: str):
+        self.__channel_id = channel_id
 
-    def print_info(self):
-        channel = Youtube.youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
-        print(json.dumps(channel, indent=2, ensure_ascii=False))
-
-    def create_data(self):
-        channel = Youtube.youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
+        channel = Youtube.youtube.channels().list(id=self.__channel_id, part='snippet,statistics').execute()
         data = json.dumps(channel, indent=2, ensure_ascii=False)
-        return data
+        self.info = json.loads(data)
+        self.title = self.info['items'][0]['snippet']['title']  # название канала
+
+        self.description = self.info['items'][0]['snippet']['description']  # описание канала
+        self.url = 'https://www.youtube.com/channel/' + self.info['items'][0]['id']  # ссылка на канал
+        self.subscriber_count = int(self.info['items'][0]["statistics"]["subscriberCount"])  # количество подписчиков
+        self.video_count = int(self.info['items'][0]["statistics"]["videoCount"])  # количество видео
+        self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
+
+    @property
+    def channel_id(self) -> str:
+        return self.__channel_id
+
+    @classmethod
+    def get_service(cls):
+        """Возвращает объект для работы с API YouTube"""
+        return Youtube.youtube
+
+    def to_json(self, path):
+        """Сохраняем файл json в проекте, чтобы не загружать каждый раз из YouTube"""
+        with open(path, 'w', encoding="UTF-8") as file:
+            json.dump(self.info, file, indent=2)
+
+    # def print_info(self):
+    #     channel = Youtube.youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
+    #     print(json.dumps(channel, indent=2, ensure_ascii=False))
+
+    # def create_data(self):
+    #     channel = Youtube.youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
+    #     data = json.dumps(channel, indent=2, ensure_ascii=False)
+    #     return data
 
 
 # channel_id = 'UC86DMwzxzk1DWqnaAjibUHQ'  # Уральские пельмени
@@ -41,12 +66,22 @@ tedx_talks = Channel('UCsT0YIqwnpJCM-mx7-gSA4Q')
 # tedx_talks.print_info()
 # print(tedx_talks.create_data())
 
-# Узнаём тип data
-print(type(tedx_talks.create_data()))
-# Переводим data в формат словаря для создания json
-data_dict = json.loads(tedx_talks.create_data())
-print(type(data_dict))
+# print(type(tedx_talks.create_data()))  # Узнаём тип data
+# data_dict = json.loads(tedx_talks.create_data())  # Переводим data в формат словаря для создания json
+# print(type(data_dict))
+#
 
-# Создаём файл json в проекте, чтобы не загружать каждый раз из YouTube.
-with open('youtube_channel.json', 'w') as file:
-    json.dump(data_dict, file, indent=2)
+
+# получаем значения атрибутов
+print(tedx_talks.title)
+print(tedx_talks.video_count)
+print(tedx_talks.url)
+
+# менять не можем
+tedx_talks.channel_id = 'Новое название'
+
+# можем получить объект для работы с API вне класса
+print(Channel.get_service())
+
+# создать файл 'tedx_talks.json' в данными по каналу
+tedx_talks.to_json('tedx_talks.json')
