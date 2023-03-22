@@ -4,7 +4,6 @@ from googleapiclient.discovery import build
 
 
 class Youtube:
-
     # API_KEY скопирован из гугла и вставлен в переменные окружения
     api_key: str = os.getenv('API_KEY')
 
@@ -80,6 +79,54 @@ class Channel:
     #     return data
 
 
+class Video:
+    def __init__(self, video_id: str) -> None:
+        self.video_id = video_id
+
+        video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
+        data_video = json.dumps(video, indent=2, ensure_ascii=False)
+        self.info = json.loads(data_video)
+        self.title = self.info['items'][0]['snippet']['title']  # название видео
+
+        self.description = self.info['items'][0]['snippet']['description']  # описание видео
+        self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
+        self.like_count = self.info['items'][0]["statistics"]["likeCount"]  # количество лайков
+
+    def print_info(self, video_id):
+        video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
+        print(json.dumps(video, indent=2, ensure_ascii=False))
+
+    def create_data(self, video_id):
+        video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
+        data = json.dumps(video, indent=2, ensure_ascii=False)
+        return data
+
+    def __str__(self) -> str:
+        """Выводим название Youtube-канала пользователю"""
+        return f"Видео: {self.title}"
+
+
+class PLVideo(Video):
+    def __init__(self, video_id: str, pl_id: str) -> None:
+        """Наследуем класс Video"""
+        super().__init__(video_id)
+        self.pl_id = pl_id
+
+        playlist = Youtube.youtube.playlists().list(id=pl_id, part='snippet, contentDetails, status').execute()
+        self.playlist_name = playlist['items'][0]['snippet']['title']  # название плейлиста
+
+        # playlist = Youtube.youtube.playlists().list(playlistId=pl_id, part='snippet, statistics').execute()
+        # data_playlist = json.dumps(playlist, indent=2, ensure_ascii=False)
+        # self.info = json.loads(data_playlist)
+        # self.title = self.info['items'][0]['snippet']['title']  # название канала
+        # self.description = self.info['items'][0]['snippet']['description']  # описание канала
+        self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
+        self.like_count = self.info['items'][0]["statistics"]["likeCount"]  # количество лайков
+
+    def __str__(self) -> str:
+        """Выводим название видео и название плейлиста пользователю"""
+        return f"Видео: {self.title} ({self.playlist_name})"
+
 # channel_id = 'UC86DMwzxzk1DWqnaAjibUHQ'  # Уральские пельмени
 # channel_id = 'UCsT0YIqwnpJCM-mx7-gSA4Q'  # TEDx Talks
 #
@@ -111,14 +158,22 @@ class Channel:
 # # создать файл 'tedx_talks.json' в данными по каналу
 # tedx_talks.to_json('tedx_talks.json')
 
-ch1 = Channel('UCsT0YIqwnpJCM-mx7-gSA4Q')
-ch2 = Channel('UC86DMwzxzk1DWqnaAjibUHQ')
+# ch1 = Channel('UCsT0YIqwnpJCM-mx7-gSA4Q')
+# ch2 = Channel('UC86DMwzxzk1DWqnaAjibUHQ')
+#
+# print(ch1)
+# print(ch2)
+#
+# ch1 > ch2
+#
+# ch1 < ch2
+#
+# ch1 + ch2
 
-print(ch1)
-print(ch2)
 
-ch1 > ch2
+video1 = Video('9lO06Zxhu88')
+print(video1)
+video2 = PLVideo('BBotskuyw_M', 'PL7Ntiz7eTKwrqmApjln9u4ItzhDLRtPuD')
+print(video2)
 
-ch1 < ch2
 
-ch1 + ch2
