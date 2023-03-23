@@ -81,6 +81,8 @@ class Channel:
 
 class Video:
     def __init__(self, video_id: str) -> None:
+        """ Экземпляр класса инициализируется по id видео.
+       Во время создания экземпляра инициализируются дополнительные атрибуты."""
         self.video_id = video_id
 
         video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
@@ -108,18 +110,13 @@ class Video:
 
 class PLVideo(Video):
     def __init__(self, video_id: str, pl_id: str) -> None:
-        """Наследуем класс Video"""
+        """Инициализируем клас плейлиста. Наследуем класс Video"""
         super().__init__(video_id)
         self.pl_id = pl_id
 
         playlist = Youtube.youtube.playlists().list(id=pl_id, part='snippet, contentDetails, status').execute()
         self.playlist_name = playlist['items'][0]['snippet']['title']  # название плейлиста
 
-        # playlist = Youtube.youtube.playlists().list(playlistId=pl_id, part='snippet, statistics').execute()
-        # data_playlist = json.dumps(playlist, indent=2, ensure_ascii=False)
-        # self.info = json.loads(data_playlist)
-        # self.title = self.info['items'][0]['snippet']['title']  # название канала
-        # self.description = self.info['items'][0]['snippet']['description']  # описание канала
         self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
         self.like_count = self.info['items'][0]["statistics"]["likeCount"]  # количество лайков
 
@@ -175,5 +172,3 @@ video1 = Video('9lO06Zxhu88')
 print(video1)
 video2 = PLVideo('BBotskuyw_M', 'PL7Ntiz7eTKwrqmApjln9u4ItzhDLRtPuD')
 print(video2)
-
-
