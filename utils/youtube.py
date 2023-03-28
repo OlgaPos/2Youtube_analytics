@@ -90,15 +90,21 @@ class Video:
         """ Экземпляр класса инициализируется по id видео.
         Во время создания экземпляра инициализируются дополнительные атрибуты."""
         self.video_id = video_id
+        try:
+            video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
+            data_video = json.dumps(video, indent=2, ensure_ascii=False)
+            self.info = json.loads(data_video)
+            self.title = self.info['items'][0]['snippet']['title']  # название видео
 
-        video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
-        data_video = json.dumps(video, indent=2, ensure_ascii=False)
-        self.info = json.loads(data_video)
-        self.title = self.info['items'][0]['snippet']['title']  # название видео
-
-        self.description = self.info['items'][0]['snippet']['description']  # описание видео
-        self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
-        self.like_count = self.info['items'][0]["statistics"]["likeCount"]  # количество лайков
+            self.description = self.info['items'][0]['snippet']['description']  # описание видео
+            self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
+            self.like_count = self.info['items'][0]["statistics"]["likeCount"]  # количество лайков
+        except:
+            self.info = None
+            self.title = None
+            self.description = None
+            self.view_count = None
+            self.like_count = None
 
     def print_info(self, video_id):
         video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
@@ -223,16 +229,23 @@ class PlayList():
 # print(video2)
 
 
-print("hw15-02")
-pl = PlayList('PLdBJapCk3hEFq3f4IiMRtEnCTAAkO2xOh')
-print(pl.title)
-print(pl.url)
+# print("hw15-02")
+# pl = PlayList('PLdBJapCk3hEFq3f4IiMRtEnCTAAkO2xOh')
+# print(pl.title)
+# print(pl.url)
 
 # pl.to_json('ural_pelmeni_plist.json')  # создаём файл 'ural_pelmeni_plist.json' с данными по плейлисту
 
-duration = pl.total_duration
-print(duration)
-print(type(duration))
-print(duration.total_seconds())
+# duration = pl.total_duration
+# print(duration)
+# print(type(duration))
+# print(duration.total_seconds())
+#
+# pl.show_best_video()
 
-pl.show_best_video()
+
+broken_video = Video('9lO06Zxhu8')
+print(broken_video.title)
+# None
+print(broken_video.like_count)
+# None
