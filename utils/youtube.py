@@ -1,9 +1,10 @@
+import datetime
 import json
 import os
 
-from googleapiclient.discovery import build
 import isodate
-import datetime
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 
 class Youtube:
@@ -99,12 +100,14 @@ class Video:
             self.description = self.info['items'][0]['snippet']['description']  # описание видео
             self.view_count = self.info['items'][0]["statistics"]["viewCount"]  # количество просмотров
             self.like_count = self.info['items'][0]["statistics"]["likeCount"]  # количество лайков
-        except:
+        except IndexError:
             self.info = None
             self.title = None
             self.description = None
             self.view_count = None
             self.like_count = None
+        # finally:
+        #     print("ended")
 
     def print_info(self, video_id):
         video = Youtube.youtube.videos().list(id=video_id, part='snippet, statistics').execute()
